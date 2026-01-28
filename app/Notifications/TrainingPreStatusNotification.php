@@ -45,6 +45,10 @@ class TrainingPreStatusNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         $textLines[] = 'We would like to inform you that your training request for ' . $this->training->getInlineRatings() . ' in ' . Area::find($this->training->area_id)->name . ' has now been assigned to pre-training.';
+        'Please proceed with completing the required Moodle materials and inform your mentor once you have finished and are ready to begin your training sessions.';
+        'We would also like to remind you that throughout your training, you are expected to remain active by completing a minimum of 5 hours every 30 days in order to maintain your eligibility for training.';
+        'Your mentor will be supporting you on a voluntary basis during your training. We therefore kindly ask that you are punctual and arrive well prepared for each session to make the most of the time available.';
+        "Best of luck with your training,  \nPortugal vACC Training Department";
         $area = Area::find($this->training->area_id);
         if (isset($area->template_pretraining)) {
             $textLines[] = $area->template_pretraining;
