@@ -116,11 +116,11 @@ class UpdateMemberDetails extends Command
         $activeMembersNotInDivision->each(function ($member) use (&$count) {
 
             // Set as ATC Inactive
-            $atcActivitiesToSetAsInactive = $member->atcActivity->where('atc_active', true);
-            AtcActivity::whereIn('id', $atcActivitiesToSetAsInactive->pluck('id'))->update(['atc_active' => false]);
-
-            $count++;
-        });
+ //           $atcActivitiesToSetAsInactive = $member->atcActivity->where('atc_active', true);
+ //           AtcActivity::whereIn('id', $atcActivitiesToSetAsInactive->pluck('id'))->update(['atc_active' => false]);
+//
+//            $count++;
+//        });
 
         $this->info($count . ' users affected.');
 
