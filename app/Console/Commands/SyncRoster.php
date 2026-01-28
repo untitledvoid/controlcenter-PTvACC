@@ -61,16 +61,16 @@ class SyncRoster extends Command
                 });
 
                 // Remove member who are not active anymore
-                $this->info('Removing members from roster...');
-                $removedMembers = $rosteredMembers->diff($activeMembers);
-                $removedMembers->each(function ($memberId) {
-                    $response = DivisionApi::removeRosterUser($memberId);
-                    if ($response->successful()) {
-                        $this->info('Removed member ' . $memberId . ' from roster.');
-                    } else {
-                        $this->error('Failed to remove member ' . $memberId . ' from roster: ' . $response->json()['message']);
-                    }
-                });
+//                $this->info('Removing members from roster...');
+//                $removedMembers = $rosteredMembers->diff($activeMembers);
+//                $removedMembers->each(function ($memberId) {
+//                    $response = DivisionApi::removeRosterUser($memberId);
+//                    if ($response->successful()) {
+//                        $this->info('Removed member ' . $memberId . ' from roster.');
+//                    } else {
+//                        $this->error('Failed to remove member ' . $memberId . ' from roster: ' . $response->json()['message']);
+//                    }
+//                });
 
                 $this->info('Syncing roster with Division API completed.');
             }
