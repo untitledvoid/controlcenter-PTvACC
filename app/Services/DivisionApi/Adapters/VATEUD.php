@@ -371,7 +371,7 @@ class VATEUD implements DivisionApiContract
      */
     public function removeRosterUser(int $userId)
     {
-        return $this->callApi('/facility/roster/' . $userId, 'DELETE');
+        return true;
     }
 
     /**
