@@ -329,3 +329,27 @@
     
 </div>
 @endsection
+
+
+<style>
+    /* alert box links */
+    .alert-primary a {
+        color: var(--color-cyan) !important; 
+        text-decoration: underline !important;
+        font-weight: 600;
+        transition: color 0.15s ease-in-out;
+    }
+
+    /* Hover  */
+    .alert-primary a:hover {
+        color: var(--color-white) !important; 
+        text-decoration: none !important;
+    }
+
+    /* icons and bold text */
+    .alert-primary i, 
+    .alert-primary b,
+    .alert-primary p {
+        color: var(--color-white) !important;
+    }
+</style>
