@@ -208,16 +208,14 @@
         </div>
         @endif
         
-        <div class="card shadow mb-4">
-            <!-- Card Header - Dropdown -->
+     <div class="card shadow mb-4">
             <div class="card-header bg-primary py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 fw-bold text-white">My Trainings</h6>
             </div>
-            <!-- Card Body -->
             <div class="card-body {{ $trainings->count() == 0 ? '' : 'p-0' }}">
                 
                 @if ($trainings->count() == 0)
-                <p>You have no registered trainings.</p>
+                <p class="p-3">You have no registered trainings.</p>
                 @else
                 <div class="table-responsive">
                     <table class="table table-striped table-hover table-leftpadded mb-0" width="100%" cellspacing="0">
@@ -227,40 +225,65 @@
                                 <th>Area</th>
                                 <th>Period</th>
                                 <th>State</th>
+                                <th class="text-center">Position</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($trainings as $training)
                             <tr>
                                 <td>
-                                    <a href="{{ $training->path() }}">
-                                        @foreach($training->ratings as $rating)
-                                        @if ($loop->last)
-                                        {{ $rating->name }}
-                                        @else
-                                        {{ $rating->name . " + " }}
-                                        @endif
-                                        @endforeach
+                                     <a href="{{ $training->path() }}">
+                                     @foreach($training->ratings as $rating)
+                                    {{ $rating->name }}{{ !$loop->last ? " + " : "" }}
+                                    @endforeach
                                     </a>
                                 </td>
-                                <td>{{ $training->area->name }}</td>
-                                <td>
-                                    @if ($training->started_at == null && $training->closed_at == null)
-                                    Training not started
-                                    @elseif ($training->closed_at == null)
-                                    {{ $training->started_at->toEuropeanDate() }} -
-                                    @elseif ($training->started_at != null)
-                                    {{ $training->started_at->toEuropeanDate() }} - {{ $training->closed_at->toEuropeanDate() }}
-                                    @else
-                                    N/A
-                                    @endif
-                                </td>
-                                <td>
-                                    <i class="{{ $statuses[$training->status]["icon"] }} text-{{ $statuses[$training->status]["color"] }}"></i>&ensp;{{ $statuses[$training->status]["text"] }}{{ isset($training->paused_at) ? ' (PAUSED)' : '' }}
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
+                            <td>{{ $training->area->name }}</td>
+                            <td>
+                                @if ($training->started_at == null && $training->closed_at == null)
+                                Training not started
+                                @elseif ($training->closed_at == null)
+                                {{ $training->started_at->toEuropeanDate() }} -
+                                @elseif ($training->started_at != null)
+                                {{ $training->started_at->toEuropeanDate() }} - {{ $training->closed_at->toEuropeanDate() }}
+                                @else
+                                N/A
+                                @endif
+                            </td>
+                            <td>
+                                <i class="{{ $statuses[$training->status]["icon"] }} text-{{ $statuses[$training->status]["color"] }}"></i>&ensp;{{ $statuses[$training->status]["text"] }}{{ isset($training->paused_at) ? ' (PAUSED)' : '' }}
+                            </td>
+                            <td class="text-center fw-bold">
+                                @if($training->status == 0)
+                                    @php
+                                        // Get the primary rating ID for this specific training
+                                        $primaryId = $training->ratings->first()->id ?? null;
+                                        
+                                        // Define the block
+                                        $isRating = ($primaryId >= 1 && $primaryId <= 5);
+                                        $isTier = ($primaryId >= 8 && $primaryId <= 14);
+
+                                        // Count others in the SAME BLOCK and SAME AREA who applied earlier
+                                        $pos = \App\Models\Training::where('area_id', $training->area_id)
+                                            ->where('status', 0)
+                                            ->where('created_at', '<', $training->created_at)
+                                            ->whereHas('ratings', function($query) use ($isRating, $isTier) {
+                                                if ($isRating) {
+                                                    $query->whereBetween('ratings.id', [1, 5]);
+                                                } elseif ($isTier) {
+                                                    $query->whereBetween('ratings.id', [8, 14]);
+                                                }
+                                            })
+                                            ->count() + 1;
+                                    @endphp
+                                    <span class="text-primary">#{{ $pos }}</span>
+                                @else
+                                    <span class="text-muted">—</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
                     </table>
                 </div>
                 @endif
