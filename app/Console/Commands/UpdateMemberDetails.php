@@ -120,7 +120,7 @@ class UpdateMemberDetails extends Command
  //           AtcActivity::whereIn('id', $atcActivitiesToSetAsInactive->pluck('id'))->update(['atc_active' => false]);
 //
 //            $count++;
-//        });
+        });
 
         $this->info($count . ' users affected.');
 
