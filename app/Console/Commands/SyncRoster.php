@@ -70,7 +70,7 @@ class SyncRoster extends Command
 //                    } else {
 //                        $this->error('Failed to remove member ' . $memberId . ' from roster: ' . $response->json()['message']);
 //                    }
-//                });
+                });
 
                 $this->info('Syncing roster with Division API completed.');
             }
