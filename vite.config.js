@@ -33,5 +33,13 @@ export default ({ mode }) => {
                 '@': '/resources/js',
             },
         },
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    quietDeps: true,
+                    silenceDeprecations: ['color-functions', 'import', 'global-builtin'],
+                },
+            },
+        },
     });
 }
