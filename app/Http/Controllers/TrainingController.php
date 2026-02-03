@@ -19,6 +19,7 @@ use App\Notifications\TrainingClosedNotification;
 use App\Notifications\TrainingCreatedNotification;
 use App\Notifications\TrainingMentorNotification;
 use App\Notifications\TrainingPreStatusNotification;
+use App\Notifications\TrainingWaitingExamNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -684,6 +685,12 @@ class TrainingController extends Controller
                 $training->user->notify(new TrainingPreStatusNotification($training));
 
                 return redirect($training->path())->withSuccess('Training successfully updated. E-mail confirmation of pre-training sent to the student.');
+            }
+            if ((int) $training->status == TrainingStatus::AWAITING_EXAM->value) {
+                $training->user->notify(new TrainingWaitingExamNotification($training));
+
+                return redirect($training->path())->withSuccess('Training successfully updated. E-mail confirmation of awaiting exam sent to the student.');
+                
             }
         }
 
