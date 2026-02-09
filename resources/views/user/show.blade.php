@@ -38,7 +38,7 @@
                     <dt class="pt-2">ATC Rating</dt>
                     <dd>{{ $user->rating_short }}</dd>
 
-                    
+
                     @if(config('app.mode') == 'subdivision')
                         <dt>Sub/Division</dt>
                         <dd class="separator pb-3">{{ $user->division }} / {{ $user->subdivision }}</dd>
@@ -152,7 +152,7 @@
                         @endcan
                     </div>
                     <div class="card-body {{ $trainings->count() == 0 ? '' : 'p-0' }}">
-        
+
                         @if($trainings->count() == 0)
                             <p class="mb-0">No registered trainings</p>
                         @else
@@ -209,11 +209,11 @@
                                 </table>
                             </div>
                         @endif
-                        
+
                     </div>
                 </div>
             </div>
-        
+
             <div class="col-xl-4 col-lg-12 col-md-12">
                 <div class="card shadow mb-4">
                     <div class="card-header bg-primary py-3 d-flex flex-row align-items-center justify-content-between">
@@ -222,7 +222,7 @@
                         </h6>
                     </div>
                     <div class="card-body {{ $divisionExams->count() == 0 ? '' : 'p-0' }}">
-        
+
                         @if($divisionExams->count() == 0)
                             <p class="mb-0">No division exam history</p>
                         @else
@@ -267,7 +267,7 @@
                                 </table>
                             </div>
                         @endif
-        
+
                     </div>
                 </div>
             </div>
@@ -342,7 +342,7 @@
                                                 <th>Revoked by</th>
                                                 <td>{{ isset($endorsement->revoked_by) ? \App\Models\User::find($endorsement->revoked_by)->name : 'System' }}</td>
                                             </tr>
-                                        @endif                    
+                                        @endif
                                     @elseif($endorsement->type == 'SOLO')
                                         <tr class="spacing">
                                             <th>Rating</th>
@@ -465,7 +465,7 @@
                                                 @else
                                                     <td class="text-center"><input type="checkbox" {{ $user->groups()->where('group_id', $group->id)->where('area_id', $area->id)->count() ? "checked" : "" }} disabled></td>
                                                 @endif
-                                                
+
                                             @endforeach
 
                                         </tr>
@@ -515,7 +515,7 @@
             .then(response => response.json())
             .then(data => {
                 var vatsimHours = document.getElementById("vatsim-data");
-    
+
                 if (data.data) {
                     for (let key in data.data) {
                         if (key === "pilot") {
@@ -532,67 +532,101 @@
                 console.error(error);
                 alert('An error occurred while fetching VATSIM hours data.');
             });
-    </script>    
+    </script>
 
     <!-- Activity chart -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            const chartElement = document.getElementById('activityChart');
+            if (!chartElement) return;
 
-            // Fetch activity data
-            fetch("https://statsim.net/atc/vatsimid/?vatsimid={{ $user->id }}&period=custom&from={{ now()->subMonths(11)->toDateString() }}+00%3A00&to={{ now()->toDateString() }}+22%3A00&json=true")
-                .then(response => response.json())
-                .then(data => {
-                    if(data && data.length > 0) {
+            // Calculate date range (11 months ago to now)
+            const fromDate = new Date();
+            fromDate.setMonth(fromDate.getMonth() - 11);
+            fromDate.setHours(0, 0, 0, 0);
 
-                        // Process each connection and calculate hours
-                        data.forEach(function (connection) {
-                            connection.logontime = new Date(connection.logontime * 1000)
-                            connection.logofftime = new Date(connection.logofftime * 1000)
-                            connection.hours = parseFloat(((connection.logofftime - connection.logontime) / 1000 / 60 / 60).toFixed(1))
-                            connection.callsignSuffix = connection.callsign.split('_').pop()
-                        })
+            const toDate = new Date();
+            toDate.setHours(23, 59, 59, 999);
 
-                        // Create chart labels based on the last 11 months
-                        var activity = []
+            const apiUrl = "{{ route('user.statistics.sessions', $user) }}?from="
+                + encodeURIComponent(fromDate.toISOString())
+                + "&to="
+                + encodeURIComponent(toDate.toISOString());
 
-                        for (var i = 11; i >= 0; i--) {
-                            activity[new Date(new Date().setMonth(new Date().getMonth() - i)).toLocaleString('default', { month: 'short' })] = 0
-                        }
-
-                        data.forEach(function (connection) {
-                            var month = connection.logontime.toLocaleString('default', { month: 'short' })
-                            activity[month] += connection.hours
-                        })
-
-                        // Define labels and chart data
-                        var chartLabels = Object.keys(activity)
-                        var chartData = Object.values(activity)
-                    
-                        // Create the chart
-                        var chart = new Chart(
-                            document.getElementById('activityChart'),
-                            {
-                                type: 'bar',
-                                data: {
-                                    labels: chartLabels,
-                                    datasets: [{
-                                        label: 'Hours online',
-                                        data: chartData,
-                                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                                        borderColor: 'rgb(54, 162, 235)',
-                                        borderWidth: 1
-                                    }]
-                                },
-                            }
-                        );
-                        
-                    } else {
-                        document.getElementById('activityChart').parentElement.innerHTML = '<p class="mb-0">No data available</p>'
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json()
+                            .then(data => {
+                                // API returned an error (e.g., StatisticsApiException)
+                                throw new Error(data.error || `HTTP ${response.status}`);
+                            })
+                            .catch(() => Promise.reject(new Error(`HTTP ${response.status}`)));
                     }
+                    return response.json();
+                })
+                .then(data => {
+                    // Check if response contains an error (from StatisticsApiException)
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    // Handle empty response - user has no ATC sessions
+                    if (!Array.isArray(data) || data.length === 0) {
+                        chartElement.parentElement.innerHTML = '<p class="mb-0">No ATC activity data available</p>';
+                        return;
+                    }
+
+                    // Process sessions and calculate hours
+                    const sessions = data.map(session => {
+                        const logonTime = new Date(session.logontime * 1000);
+                        const logoffTime = new Date(session.logofftime * 1000);
+                        // Calculate hours: difference is in milliseconds, convert to hours
+                        const hours = Number(((logoffTime - logonTime) / 3_600_000).toFixed(1));
+
+                        return {
+                            ...session,
+                            logontime: logonTime,
+                            logofftime: logoffTime,
+                            hours: hours,
+                        };
+                    });
+
+                    // Initialize activity object with last 12 months (include year to avoid cross-year collisions)
+                    const activity = {};
+                    const now = new Date();
+                    for (let i = 11; i >= 0; i--) {
+                        const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                        const monthKey = monthDate.toLocaleString('default', { month: 'short', year: 'numeric' });
+                        activity[monthKey] = 0;
+                    }
+
+                    // Aggregate hours by month
+                    sessions.forEach(session => {
+                        const monthKey = session.logontime.toLocaleString('default', { month: 'short', year: 'numeric' });
+                        if (activity[monthKey] !== undefined) {
+                            activity[monthKey] += session.hours;
+                        }
+                    });
+
+                    // Create chart
+                    new Chart(chartElement, {
+                        type: 'bar',
+                        data: {
+                            labels: Object.keys(activity),
+                            datasets: [{
+                                label: 'Hours online',
+                                data: Object.values(activity),
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                borderColor: 'rgb(54, 162, 235)',
+                                borderWidth: 1
+                            }]
+                        },
+                    });
                 })
                 .catch(error => {
-                    console.error(error);
-                    alert('An error occurred while fetching STATSIM hours data.');
+                    console.error('Statistics API error:', error);
+                    chartElement.parentElement.innerHTML = '<p class="mb-0 text-danger">Failed to load activity data</p>';
                 });
         });
     </script>
