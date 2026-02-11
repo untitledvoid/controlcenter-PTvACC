@@ -219,7 +219,7 @@ class TrainingController extends Controller
             'payload' => $payload,
             'atc_hours' => $vatsimStats,
             'atcActiveRequired' => ($atcActiveRequired) ? 1 : 0,
-            'motivation_required' => ($userVatsimRating <= 2) ? 1 : 0,
+            'motivation_required' => 0, // Deprecated, but can be re-enabled if needed in the future. Just set to 1 and add the validation rule in validateUpdateDetails()
         ]);
     }
 
@@ -257,15 +257,22 @@ class TrainingController extends Controller
             return response(['message' => 'The given CID cannot be found in the application database. Please check the user has logged in before.'], 400);
         }
 
-        // Only allow one training request at a time
+        // Allow one rating, one tier 1, and one tier 2 training requested
+        // But only one can be in active training status (status 2) at a time
         if (isset($data['user_id'])) {
-            if (User::find($data['user_id'])->hasActiveTrainings(true)) {
-                return redirect()->back()->withErrors('The user already has an active training request.');
-            }
-        } elseif (Auth::user()->hasActiveTrainings(true)) {
-            return redirect()->back()->withErrors('You already have an active training request.');
+         $user = User::find($data['user_id']);
+        } else {
+          $user = Auth::user();
         }
 
+        // Check if user already has an active training (status 2)
+        $activeTrainingInProgress = $user->trainings()->where('status', 2)->exists();
+        if ($activeTrainingInProgress) {
+          return redirect()->back()->withErrors('You already have a training in active training status. Please complete it before applying for another.');
+        }
+
+        // Get trainings in queue, pre-training, or awaiting exam to check later
+        $requestedTrainings = $user->trainings()->whereIn('status', [0, 1, 3])->with('ratings')->get();
         // Training_level comes from the application, ratings comes from the manual creation, we need to seperate those.
         if (isset($data['training_level'])) {
             $ratings = Rating::find(explode('+', $data['training_level']));
@@ -340,6 +347,44 @@ class TrainingController extends Controller
 
         } else {
             return redirect()->back()->withErrors('One or more ratings need to be selected to create training request.');
+        }
+
+        // Check if user already has this type of training (rating, tier 1, or tier 2)
+        $requestedRatingId = $ratings->first()->id;
+
+        // Determine what type is being requested
+        $isRequestingRating = ($requestedRatingId >= 1 && $requestedRatingId <= 5);
+        $isRequestingTier1 = ($requestedRatingId >= 8 && $requestedRatingId <= 10);
+        $isRequestingTier2 = ($requestedRatingId >= 11 && $requestedRatingId <= 14);
+
+        // Check what types user already has requested
+        $hasRatingRequest = false;
+        $hasTier1Request = false;
+        $hasTier2Request = false;
+
+        foreach ($requestedTrainings as $training) {
+            $ratingId = $training->ratings->first()->id;
+            
+            if ($ratingId >= 1 && $ratingId <= 5) {
+                $hasRatingRequest = true;
+            } elseif ($ratingId >= 8 && $ratingId <= 10) {
+                $hasTier1Request = true;
+            } elseif ($ratingId >= 11 && $ratingId <= 14) {
+                $hasTier2Request = true;
+            }
+        }
+
+        // Block if trying to request a duplicate type
+        if ($isRequestingRating && $hasRatingRequest) {
+            return redirect()->back()->withErrors('You already have a rating training request. You can have one rating, one tier 1, and one tier 2 training requested at the same time.');
+        }
+
+        if ($isRequestingTier1 && $hasTier1Request) {
+            return redirect()->back()->withErrors('You already have a tier 1 training request. You can have one rating, one tier 1, and one tier 2 training requested at the same time.');
+        }
+
+        if ($isRequestingTier2 && $hasTier2Request) {
+            return redirect()->back()->withErrors('You already have a tier 2 training request. You can have one rating, one tier 1, and one tier 2 training requested at the same time.');
         }
 
         $training = Training::create([
@@ -687,10 +732,9 @@ class TrainingController extends Controller
                 return redirect($training->path())->withSuccess('Training successfully updated. E-mail confirmation of pre-training sent to the student.');
             }
             if ((int) $training->status == TrainingStatus::AWAITING_EXAM->value) {
-                $training->user->notify(new TrainingWaitingExamNotification($training));
+              $training->user->notify(new TrainingWaitingExamNotification($training));
 
                 return redirect($training->path())->withSuccess('Training successfully updated. E-mail confirmation of awaiting exam sent to the student.');
-                
             }
         }
 
@@ -845,7 +889,7 @@ class TrainingController extends Controller
             'experience' => 'sometimes|required|integer|min:1|max:6',
             'englishOnly' => 'nullable',
             'paused_at' => 'sometimes',
-            'motivation' => 'sometimes|max:1500',
+            'motivation' => 'nullable|max:1500',
             'user_id' => 'sometimes|required|integer',
             'comment' => 'nullable',
             'training_level' => 'sometimes|required',
