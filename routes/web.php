@@ -182,6 +182,13 @@ Route::middleware(['auth', 'activity', 'suspended'])->group(function () {
         Route::post('/booking/update', 'update');
     });
 
+    // Block sweatbook access
+    Route::any('/sweatbook/{any?}', function() { abort(404); })->where('any', '.*');
+    Route::controller(SweatbookController::class)->group(function () {
+        Route::get('/sweatbook', 'index')->name('sweatbook');
+    });
+
+
     // Mentor Routes
     Route::get('/mentor', [MentorController::class, 'index'])->name('mentor');
 
