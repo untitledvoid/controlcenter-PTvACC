@@ -49,7 +49,7 @@ class TrainingCreatedNotification extends Notification implements ShouldQueue
         $waitingTime = ! empty($this->training->area->waiting_time) ? $this->training->area->waiting_time : 'unknown';
 
         $textLines = [
-            'We hereby confirm that we have received your training request for ' . $this->training->getInlineRatings() . ' within the ' . Area::find($this->training->area_id)->name . '.',
+            'We have received your training request for ' . $this->training->getInlineRatings() . ' within the ' . Area::find($this->training->area_id)->name . '.',
             'While we are unable to provide an exact timeframe, please note that most training requests are typically processed within approximately three months.',
             'During this waiting period, we kindly ask that you remain active by controlling regularly and completing a minimum of 5 hours every 30 days to maintain your eligibility for training.',
             'Please note that if you become inactive, your training request will be removed. You are welcome to reapply once you are available to control again.',
