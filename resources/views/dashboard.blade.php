@@ -65,7 +65,7 @@
             </div>
         </div>
     </div>
-
+    
     <!-- Division card -->
     <div class="col-xl-3 col-md-6 mb-4 d-none d-xl-block d-lg-block d-md-block">
         <div class="card border-left-primary shadow h-100 py-2">
@@ -75,9 +75,9 @@
                         <div class="fs-sm fw-bold text-uppercase text-gray-600 mb-1">Your associated division</div>
                         <div class="h5 mb-0 fw-bold text-gray-800">
                             @if(config('app.mode') == 'subdivision')
-                            {{ $data['division'] }}/{{ $data['subdivision'] }}
+                                {{ $data['division'] }}/{{ $data['subdivision'] }}
                             @else
-                            {{ $data['division'] }}
+                                {{ $data['division'] }}
                             @endif
                         </div>
                     </div>
@@ -88,7 +88,7 @@
             </div>
         </div>
     </div>
-
+    
     <!-- ATC Hours card -->
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card {{ ($atcHours < Setting::get('atcActivityRequirement', 10)) ? 'border-left-danger' : 'border-left-success' }} shadow h-100 py-2">
@@ -105,9 +105,9 @@
             </div>
         </div>
     </div>
-
-
-
+    
+    
+    
     <!-- Last training card -->
     <div class="col-xl-3 col-md-6 mb-4 d-none d-xl-block d-lg-block d-md-block">
         <div class="card border-left-info shadow h-100 py-2">
@@ -128,13 +128,13 @@
             </div>
         </div>
     </div>
-
+    
 </div>
 
 <div class="row">
     <!-- Area Chart -->
     <div class="col-xl-8 col-lg-7 ">
-
+        
         @if(\Auth::user()->isMentor())
         <div class="card shadow mb-4 d-none d-xl-block d-lg-block d-md-block">
             <!-- Card Header - Dropdown -->
@@ -143,46 +143,46 @@
             </div>
             <!-- Card Body -->
             <div class="card-body {{ sizeof($studentTrainings) == 0 ? '' : 'p-0' }}">
-
+                
                 @if (sizeof($studentTrainings) == 0)
                 <p class="mb-0">You have no students.</p>
                 @else
                 <div class="table-responsive">
                     <table class="table table-striped table-hover table-leftpadded mb-0" width="100%" cellspacing="0">
                         <thead class="table-light">
-                        <tr>
-                            <th>Student</th>
-                            <th>Level</th>
-                            <th>Area</th>
-                            <th>State</th>
-                            <th>Last Training</th>
-                        </tr>
+                            <tr>
+                                <th>Student</th>
+                                <th>Level</th>
+                                <th>Area</th>
+                                <th>State</th>
+                                <th>Last Training</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        @foreach($studentTrainings as $training)
-                        <tr>
-                            <td><a href="{{ $training->path() }}">{{ $training->user->name }}</a></td>
-                            <td>
-                                <i class="{{ $types[$training->type]["icon"] }} text-primary"></i>
-                                @foreach($training->ratings as $rating)
-                                @if ($loop->last)
-                                {{ $rating->name }}
-                                @else
-                                {{ $rating->name . " + " }}
-                                @endif
-                                @endforeach
-                            </td>
-                            <td>{{ $training->area->name }}</td>
-                            <td>
-                                <i class="{{ $statuses[$training->status]["icon"] }} text-{{ $statuses[$training->status]["color"] }}"></i>&ensp;{{ $statuses[$training->status]["text"] }}{{ isset($training->paused_at) ? ' (PAUSED)' : '' }}
-                            </td>
-                            <td>
-                                @if($training->reports->count() > 0)
-                                @php
-                                $reportDate = Carbon\Carbon::make($training->reports->sortBy('report_date')->last()->report_date);
-                                $trainingIntervalExceeded = $reportDate->diffInDays() >= Setting::get('trainingInterval');
-                                @endphp
-                                <span title="{{ $reportDate->toEuropeanDate() }}">
+                            @foreach($studentTrainings as $training)
+                            <tr>
+                                <td><a href="{{ $training->path() }}">{{ $training->user->name }}</a></td>
+                                <td>
+                                    <i class="{{ $types[$training->type]["icon"] }} text-primary"></i>
+                                    @foreach($training->ratings as $rating)
+                                    @if ($loop->last)
+                                    {{ $rating->name }}
+                                    @else
+                                    {{ $rating->name . " + " }}
+                                    @endif
+                                    @endforeach
+                                </td>
+                                <td>{{ $training->area->name }}</td>
+                                <td>
+                                    <i class="{{ $statuses[$training->status]["icon"] }} text-{{ $statuses[$training->status]["color"] }}"></i>&ensp;{{ $statuses[$training->status]["text"] }}{{ isset($training->paused_at) ? ' (PAUSED)' : '' }}
+                                </td>
+                                <td>
+                                    @if($training->reports->count() > 0)
+                                        @php
+                                            $reportDate = Carbon\Carbon::make($training->reports->sortBy('report_date')->last()->report_date);
+                                            $trainingIntervalExceeded = $reportDate->diffInDays() >= Setting::get('trainingInterval');
+                                        @endphp
+                                        <span title="{{ $reportDate->toEuropeanDate() }}">
                                             @if($reportDate->isToday())
                                             <span class="{{ ($trainingIntervalExceeded && $training->status != \App\Helpers\TrainingStatus::AWAITING_EXAM->value && !$training->paused_at) ? 'text-danger' : '' }}">Today</span>
                                             @elseif($reportDate->isYesterday())
@@ -192,14 +192,14 @@
                                             @else
                                             <span class="{{ ($trainingIntervalExceeded && $training->status != \App\Helpers\TrainingStatus::AWAITING_EXAM->value && !$training->paused_at) ? 'text-danger' : '' }}">{{ $reportDate->diffForHumans(['parts' => 2]) }}</span>
                                             @endif
-
+                                            
                                         </span>
-                                @else
-                                No registered training yet
-                                @endif
-                            </td>
-                        </tr>
-                        @endforeach
+                                    @else
+                                        No registered training yet
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -207,37 +207,37 @@
             </div>
         </div>
         @endif
-
-        <div class="card shadow mb-4">
+        
+     <div class="card shadow mb-4">
             <div class="card-header bg-primary py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 fw-bold text-white">My Trainings</h6>
             </div>
             <div class="card-body {{ $trainings->count() == 0 ? '' : 'p-0' }}">
-
+                
                 @if ($trainings->count() == 0)
                 <p class="p-3">You have no registered trainings.</p>
                 @else
                 <div class="table-responsive">
                     <table class="table table-striped table-hover table-leftpadded mb-0" width="100%" cellspacing="0">
                         <thead class="table-light">
-                        <tr>
-                            <th>Level</th>
-                            <th>Area</th>
-                            <th>Period</th>
-                            <th>State</th>
-                            <th class="text-center">Position</th>
-                        </tr>
+                            <tr>
+                                <th>Level</th>
+                                <th>Area</th>
+                                <th>Period</th>
+                                <th>State</th>
+                                <th class="text-center">Position</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        @foreach($trainings as $training)
-                        <tr>
-                            <td>
-                                <a href="{{ $training->path() }}">
-                                    @foreach($training->ratings as $rating)
+                            @foreach($trainings as $training)
+                            <tr>
+                                <td>
+                                     <a href="{{ $training->path() }}">
+                                     @foreach($training->ratings as $rating)
                                     {{ $rating->name }}{{ !$loop->last ? " + " : "" }}
                                     @endforeach
-                                </a>
-                            </td>
+                                    </a>
+                                </td>
                             <td>{{ $training->area->name }}</td>
                             <td>
                                 @if ($training->started_at == null && $training->closed_at == null)
@@ -255,42 +255,42 @@
                             </td>
                             <td class="text-center fw-bold">
                                 @if($training->status == 0)
-                                @php
-                                // Get the primary rating ID for this specific training
-                                $primaryId = $training->ratings->first()->id ?? null;
+                                    @php
+                                        // Get the primary rating ID for this specific training
+                                        $primaryId = $training->ratings->first()->id ?? null;
+                                        
+                                        // Define the block
+                                        $isRating = ($primaryId >= 1 && $primaryId <= 5);
+                                        $isTier = ($primaryId >= 8 && $primaryId <= 14);
 
-                                // Define the block
-                                $isRating = ($primaryId >= 1 && $primaryId <= 5);
-                                $isTier = ($primaryId >= 8 && $primaryId <= 14);
-
-                                // Count others in the SAME BLOCK and SAME AREA who applied earlier
-                                $pos = \App\Models\Training::where('area_id', $training->area_id)
-                                ->where('status', 0)
-                                ->where('created_at', '<', $training->created_at)
-                                ->whereHas('ratings', function($query) use ($isRating, $isTier) {
-                                if ($isRating) {
-                                $query->whereBetween('ratings.id', [1, 5]);
-                                } elseif ($isTier) {
-                                $query->whereBetween('ratings.id', [8, 14]);
-                                }
-                                })
-                                ->count() + 1;
-                                @endphp
-                                <span class="text-primary">#{{ $pos }}</span>
+                                        // Count others in the SAME BLOCK and SAME AREA who applied earlier
+                                        $pos = \App\Models\Training::where('area_id', $training->area_id)
+                                            ->where('status', 0)
+                                            ->where('created_at', '<', $training->created_at)
+                                            ->whereHas('ratings', function($query) use ($isRating, $isTier) {
+                                                if ($isRating) {
+                                                    $query->whereBetween('ratings.id', [1, 5]);
+                                                } elseif ($isTier) {
+                                                    $query->whereBetween('ratings.id', [8, 14]);
+                                                }
+                                            })
+                                            ->count() + 1;
+                                    @endphp
+                                    <span class="text-primary">#{{ $pos }}</span>
                                 @else
-                                <span class="text-muted">—</span>
+                                    <span class="text-muted">—</span>
                                 @endif
                             </td>
                         </tr>
                         @endforeach
-                        </tbody>
+                    </tbody>
                     </table>
                 </div>
                 @endif
             </div>
         </div>
     </div>
-
+    
     <div class="col-xl-4 col-lg-5">
         <div class="card shadow mb-4">
             <!-- Card Header - Dropdown -->
@@ -303,7 +303,7 @@
                     <img class="img-fluid px-3 px-sm-4 mb-4" style="width: 25rem;" src="images/undraw_speech_to_text_vatsim.svg" alt="">
                 </div>
                 <p>Are you interested in becoming an Air Traffic Controller? Wish to receive training for a higher rating? Request training below and you will be notified when a space is available.</p>
-
+                
                 @can('apply', \App\Models\Training::class)
                 <div class="d-grid">
                     <a href="{{ route('training.apply') }}" class="btn btn-success">
@@ -311,122 +311,122 @@
                     </a>
                 </div>
                 @else
-
+                
                 @php
-                // Check for active training in progress (status 2)
-                $activeTrainingInProgress = \Auth::user()->trainings()->where('status', 2)->exists();
-
-                // Get requested trainings (status 0, 1, 3)
-                $requestedTrainings = \Auth::user()->trainings()->whereIn('status', [0, 1, 3])->with('ratings')->get();
-
-                $hasRatingRequest = false;
-                $hasTier1Request = false;
-                $hasTier2Request = false;
-                $ratingName = '';
-                $tier1Name = '';
-                $tier2Name = '';
-
-                foreach ($requestedTrainings as $training) {
-                $ratingId = $training->ratings->first()->id;
-                $ratingNameTemp = $training->ratings->first()->name;
-
-                if ($ratingId >= 1 && $ratingId <= 5) {
-                $hasRatingRequest = true;
-                $ratingName = $ratingNameTemp;
-                } elseif ($ratingId >= 8 && $ratingId <= 10) {
-                $hasTier1Request = true;
-                $tier1Name = $ratingNameTemp;
-                } elseif ($ratingId >= 11 && $ratingId <= 14) {
-                $hasTier2Request = true;
-                $tier2Name = $ratingNameTemp;
-                }
-                }
-
-                $totalRequests = (int)$hasRatingRequest + (int)$hasTier1Request + (int)$hasTier2Request;
-                $canApply = !$activeTrainingInProgress && $totalRequests < 3;
+                    // Check for active training in progress (status 2)
+                    $activeTrainingInProgress = \Auth::user()->trainings()->where('status', 2)->exists();
+                    
+                    // Get requested trainings (status 0, 1, 3)
+                    $requestedTrainings = \Auth::user()->trainings()->whereIn('status', [0, 1, 3])->with('ratings')->get();
+                    
+                    $hasRatingRequest = false;
+                    $hasTier1Request = false;
+                    $hasTier2Request = false;
+                    $ratingName = '';
+                    $tier1Name = '';
+                    $tier2Name = '';
+                    
+                    foreach ($requestedTrainings as $training) {
+                        $ratingId = $training->ratings->first()->id;
+                        $ratingNameTemp = $training->ratings->first()->name;
+                        
+                        if ($ratingId >= 1 && $ratingId <= 5) {
+                            $hasRatingRequest = true;
+                            $ratingName = $ratingNameTemp;
+                        } elseif ($ratingId >= 8 && $ratingId <= 10) {
+                            $hasTier1Request = true;
+                            $tier1Name = $ratingNameTemp;
+                        } elseif ($ratingId >= 11 && $ratingId <= 14) {
+                            $hasTier2Request = true;
+                            $tier2Name = $ratingNameTemp;
+                        }
+                    }
+                    
+                    $totalRequests = (int)$hasRatingRequest + (int)$hasTier1Request + (int)$hasTier2Request;
+                    $canApply = !$activeTrainingInProgress && $totalRequests < 3;
                 @endphp
-
+                
                 <div class="btn btn-{{ (\Auth::user()->hasActiveTrainings(true) && Setting::get('trainingEnabled')) ? 'success' : 'primary' }} d-block disabled not-allowed" role="button" aria-disabled="true">
                     @if(\Auth::user()->hasActiveTrainings(true) && Setting::get('trainingEnabled'))
-                    <i class="fas fa-check"></i>
-                    @if($activeTrainingInProgress)
-                    You have a training in active training status
-                    <br><small>Complete it before requesting another</small>
-                    @else
-                    @if($hasRatingRequest)
-                    Rating: {{ $ratingName }}
-                    @if($hasTier1Request || $hasTier2Request)<br>@endif
-                    @endif
-                    @if($hasTier1Request)
-                    Tier 1: {{ $tier1Name }}
-                    @if($hasTier2Request)<br>@endif
-                    @endif
-                    @if($hasTier2Request)
-                    Tier 2: {{ $tier2Name }}
-                    @endif
-                    @if($totalRequests < 3)
-                    <br><small>You can request {{ 3 - $totalRequests }} more training{{ $totalRequests < 2 ? 's' : '' }}</small>
-                    @endif
-                    @endif
-                    @else
-                    <i class="fas fa-exclamation-triangle"></i>
-                    {{ Gate::inspect('apply', \App\Models\Training::class)->message() }}
-                    @endif
-                </div>
-
-                @if($canApply && Setting::get('trainingEnabled'))
-                <div class="d-grid mt-2">
-                    <a href="{{ route('training.apply') }}" class="btn btn-primary">
-                        @if(!$hasRatingRequest && !$hasTier1Request && !$hasTier2Request)
-                        Request training
+                        <i class="fas fa-check"></i>
+                        @if($activeTrainingInProgress)
+                            You have a training in active training status
+                            <br><small>Complete it before requesting another</small>
                         @else
-                        Request
-                        @if(!$hasRatingRequest) rating @endif
-                        @if(!$hasRatingRequest && (!$hasTier1Request || !$hasTier2Request)) / @endif
-                        @if(!$hasTier1Request) tier 1 @endif
-                        @if(!$hasTier1Request && !$hasTier2Request) / @endif
-                        @if(!$hasTier2Request) tier 2 @endif
-                        training
+                            @if($hasRatingRequest)
+                                Rating: {{ $ratingName }}
+                                @if($hasTier1Request || $hasTier2Request)<br>@endif
+                            @endif
+                            @if($hasTier1Request)
+                                Tier 1: {{ $tier1Name }}
+                                @if($hasTier2Request)<br>@endif
+                            @endif
+                            @if($hasTier2Request)
+                                Tier 2: {{ $tier2Name }}
+                            @endif
+                            @if($totalRequests < 3)
+                                <br><small>You can request {{ 3 - $totalRequests }} more training{{ $totalRequests < 2 ? 's' : '' }}</small>
+                            @endif
                         @endif
-                    </a>
+                    @else
+                        <i class="fas fa-exclamation-triangle"></i>
+                        {{ Gate::inspect('apply', \App\Models\Training::class)->message() }}
+                    @endif
                 </div>
+                
+                @if($canApply && Setting::get('trainingEnabled'))
+                    <div class="d-grid mt-2">
+                        <a href="{{ route('training.apply') }}" class="btn btn-primary">
+                            @if(!$hasRatingRequest && !$hasTier1Request && !$hasTier2Request)
+                                Request training
+                            @else
+                                Request
+                                @if(!$hasRatingRequest) rating @endif
+                                @if(!$hasRatingRequest && (!$hasTier1Request || !$hasTier2Request)) / @endif
+                                @if(!$hasTier1Request) tier 1 @endif
+                                @if(!$hasTier1Request && !$hasTier2Request) / @endif
+                                @if(!$hasTier2Request) tier 2 @endif
+                                training
+                            @endif
+                        </a>
+                    </div>
                 @endif
-
+                
                 @if(Setting::get('trainingEnabled'))
                 <div class="alert alert-primary" role="alert">
                     <p class="small">
                         <b><i class="fas fa-chevron-right"></i> How do I join the division?</b>
                         <a href="{{ Setting::get('linkJoin') }}" target="_blank">Read about joining here. You will be able to apply here within 24 hours after transfer.</a>
-
+                        
                         <br>
-
+                        
                         <b><i class="fas fa-chevron-right"></i> How to apply to be a visiting controller?</b>
                         <a href="{{ Setting::get('linkVisiting') }}" target="_blank">Check this page for more information.</a>
-
+                        
                         <br>
-
+                        
                         <b><i class="fas fa-chevron-right"></i> My rating is inactive?</b>
                         <a href="{{ Setting::get('linkContact') }}" target="_blank">Contact local training staff for refresh or transfer training.</a>
-
+                        
                         <br>
-
+                        
                         {{-- <b><i class="fas fa-chevron-right"></i> How long is the queue?</b> --}}
-                        {{-- {{ \Auth::user()->getActiveTraining()->area->waiting_time ?? 'See application page or training confirmation email for details.' }} --}}
+                        {{-- {{ \Auth::user()->getActiveTraining()->area->waiting_time ?? 'See application page or training confirmation email for details.' }} --}} 
                     </p>
                 </div>
                 @endif
-
+                
                 @endcan
             </div>
         </div>
     </div>
-
+    
 </div>
 
 <style>
     /* alert box links */
     .alert-primary a {
-        color: var(--color-cyan) !important;
+        color: var(--color-cyan) !important; 
         text-decoration: underline !important;
         font-weight: 600;
         transition: color 0.15s ease-in-out;
@@ -434,12 +434,12 @@
 
     /* Hover  */
     .alert-primary a:hover {
-        color: var(--color-white) !important;
+        color: var(--color-white) !important; 
         text-decoration: none !important;
     }
 
     /* icons and bold text */
-    .alert-primary i,
+    .alert-primary i, 
     .alert-primary b,
     .alert-primary p {
         color: var(--color-white) !important;
