@@ -163,10 +163,10 @@ class EndorsementController extends Controller
             }
 
             // Validate if the user has passed the related exam
-            $highestTrainingRating = $user->getActiveTraining()->ratings->sortByDesc('vatsim_rating')->first();
-            if (! DivisionApi::userHasPassedTheoryExam($user, $highestTrainingRating)) {
-                return back()->withInput()->withErrors($user->name . ' has not passed the ' . $highestTrainingRating->name . ' theory exam. Solo endorsement can not be created.');
-            }
+            // $highestTrainingRating = $user->getActiveTraining()->ratings->sortByDesc('vatsim_rating')->first();
+           //  if (! DivisionApi::userHasPassedTheoryExam($user, $highestTrainingRating)) {
+            //    return back()->withInput()->withErrors($user->name . ' has not passed the ' . $highestTrainingRating->name . ' theory exam. Solo endorsement can not be created.');
+           // }
 
             // Validate the position
             $position = Position::firstWhere('callsign', $data['position']);
