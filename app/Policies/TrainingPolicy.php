@@ -18,8 +18,8 @@ class TrainingPolicy
     public function view(User $user, Training $training)
     {
         return $training->mentors->contains($user) ||
-            $user->isModeratorOrAbove($training->area) ||
-            $user->is($training->user);
+                $user->isModeratorOrAbove($training->area) ||
+                $user->is($training->user);
     }
     /**
      * Determine whether the user can update the training.
@@ -56,7 +56,7 @@ class TrainingPolicy
     public function togglePreTrainingCompleted(User $user, Training $training)
     {
         return $training->status == TrainingStatus::PRE_TRAINING->value &&
-            ($training->pre_training_completed == false || $user->isModeratorOrAbove($training->area));
+                ($training->pre_training_completed == false || $user->isModeratorOrAbove($training->area));
     }
     /**
      * Check whether the given user is allowed to apply for training
@@ -111,14 +111,14 @@ class TrainingPolicy
         $hasTier2Request = false;
         foreach ($requestedTrainings as $training) {
             $ratingId = $training->ratings->first()->id;
-
-            if ($ratingId >= 1 && $ratingId <= 5) {
-                $hasRatingRequest = true;
-            } elseif ($ratingId >= 8 && $ratingId <= 10) {
-                $hasTier1Request = true;
-            } elseif ($ratingId >= 11 && $ratingId <= 14) {
-                $hasTier2Request = true;
-            }
+    
+          if ($ratingId >= 1 && $ratingId <= 5) {
+              $hasRatingRequest = true;
+           } elseif ($ratingId >= 8 && $ratingId <= 10) {
+              $hasTier1Request = true;
+          } elseif ($ratingId >= 11 && $ratingId <= 14) {
+              $hasTier2Request = true;
+          }
         }
         // If user has all three types requested, deny
         if ($hasRatingRequest && $hasTier1Request && $hasTier2Request) {
