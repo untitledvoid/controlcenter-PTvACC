@@ -43,10 +43,11 @@ class TrainingWaitingExamNotification extends Notification implements ShouldQueu
     public function toMail($notifiable)
     {
         $textLines = [
-            'Congratulations! Your training for ' . $this->training->getInlineRatings() . ' in ' . Area::find($this->training->area_id)->name . ' has progressed to the examination stage.',
-            'Your mentor will contact you soon to schedule your examination.',
-            'Please ensure you are well prepared and have reviewed all the necessary materials.',
-            'Good luck with your upcoming exam!',
+            'Your training for ' . $this->training->getInlineRatings() . ' in ' . Area::find($this->training->area_id)->name . ' has progressed to the examination stage. You will soon be given access to the theoretical exam and a solo endorsement.',
+            "Please note that the CPT **must be scheduled** within the following time windows:  \nWeekdays: 17:30 - 22:00 UTC  \nSaturday: 14:30 - 22:00 UTC  \nSunday: 14:30 - 19:00 UTC",
+            'Requests submitted outside of these times will be automatically declined.',
+            'To schedule your CPT, please [click here to send us your availability.](mailto:caladon.evans@portugal-vacc.org?subject=CPT%20Availability&body=Name%3A%0ACID%3A%0ARating%3A%20%0ADesired%20airport%20(ICAO)%3A%20%0AAvailability%3A' . urlencode($this->training->getInlineRatings()) . '%0A%5BWrite%20your%20availability%20here%5D)',
+            "Best of luck with your exam!  \nPortugal vACC Training Department",
         ];
 
         $area = Area::find($this->training->area_id);
