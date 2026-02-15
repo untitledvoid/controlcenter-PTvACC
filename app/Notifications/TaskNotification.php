@@ -49,7 +49,6 @@ class TaskNotification extends Notification
     {
 
         $textLines = [];
-        $textLines[] = 'There is an update for some of your tasks.';
 
         if ($this->receivedTasks->count()) {
             $textLines[] = '## New tasks';
