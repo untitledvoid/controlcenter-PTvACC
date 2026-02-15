@@ -86,6 +86,7 @@ Route::middleware(['auth', 'activity', 'suspended'])->group(function () {
         // Internal user search
         Route::get('/user/search/find', 'search')->name('user.search');
         Route::get('/user/search/vatsimhours', 'fetchVatsimHours')->name('user.vatsimhours');
+        Route::get('/user/{user}/statistics/sessions', 'fetchStatisticsSessions')->name('user.statistics.sessions');
     });
 
     // Reports
@@ -106,6 +107,8 @@ Route::middleware(['auth', 'activity', 'suspended'])->group(function () {
     Route::get('/admin/templates/{id}', [NotificationController::class, 'index'])->name('admin.templates.area');
     Route::post('/admin/templates/update', [NotificationController::class, 'update'])->name('admin.templates.update');
     Route::get('/admin/log', [ActivityLogController::class, 'index'])->name('admin.logs');
+    Route::resource('/admin/positions', App\Http\Controllers\Admin\PositionController::class)->except(['show']);
+    Route::get('/admin/positions/{area}', [App\Http\Controllers\Admin\PositionController::class, 'index'])->name('positions.index.area');
 
     // Training routes
     Route::controller(TrainingController::class)->group(function () {
@@ -181,13 +184,6 @@ Route::middleware(['auth', 'activity', 'suspended'])->group(function () {
         Route::post('/booking/store', 'store')->name('booking.store');
         Route::post('/booking/update', 'update');
     });
-
-    // Block sweatbook access
-    Route::any('/sweatbook/{any?}', function() { abort(404); })->where('any', '.*');
-    Route::controller(SweatbookController::class)->group(function () {
-        Route::get('/sweatbook', 'index')->name('sweatbook');
-    });
-
 
     // Mentor Routes
     Route::get('/mentor', [MentorController::class, 'index'])->name('mentor');
