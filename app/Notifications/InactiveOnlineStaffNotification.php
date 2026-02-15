@@ -57,7 +57,6 @@ class InactiveOnlineStaffNotification extends Notification implements ShouldQueu
             $this->user->name . ' (' . $this->user->id . ') has been warned for logging on the network with an **inactive** ATC status.',
             'Position: ' . $this->position,
             'Logon time: ' . Carbon::parse($this->logonTime)->toEuropeanDateTime(),
-            'All admins and moderators in area in question has been notified.',
         ];
 
         return (new StaffNoticeMail('Unauthorized network logon recorded', $textLines))
